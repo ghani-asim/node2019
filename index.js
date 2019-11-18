@@ -2,6 +2,7 @@
 
 const express = require('express');
 const connection = require('./model/db.js');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -23,13 +24,25 @@ app.get('/animals', async (req, res) => {
 
 app.get('/animal', async (req, res) => {
     console.log(req.query);
-    //res.send(`query params? ${req.query}`);
     try {
         const [results] = await connection.query(
             'SELECT * FROM animal WHERE name LIKE ?',
             [req.query.name]); 
         res.json(results);
     } catch (e) {
+        res.send(`db error ${e}`);
+    }
+});
+
+app.post('/animal', bodyParser.urlencoded(), async (req, res) => {
+    console.log(req.body);
+    try {
+        const [results] = await connection.query(
+            'INSERT INTO animal (name) VALUES (?)',
+            [req.body.name]); 
+        res.json(results);
+    } catch (e) {
+        console.log(e);
         res.send(`db error ${e}`);
     }
 });
